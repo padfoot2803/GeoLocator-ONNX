@@ -5,12 +5,13 @@ import os
 import onnxruntime as ort
 import numpy as np
 
+
 class GeoLocatorProcessor:
     def __init__(self):
         self.valid_extension = [".jpg", ".jpeg", ".png", ".bmp", ".gif"]
 
     def returnTF(self):
-    # Load the image transformer
+        # Load the image transformer
         tf = trn.Compose(
             [
                 trn.Resize((224, 224)),
@@ -19,7 +20,7 @@ class GeoLocatorProcessor:
             ]
         )
         return tf
-    
+
     def load_labels(self):
         # Prepare all the labels
         # Scene category relevant
@@ -48,8 +49,11 @@ class GeoLocatorProcessor:
         # file_name_W = "W_sceneattribute_wideresnet18.npy"
         # W_attribute = np.load(file_name_W)
 
-        return classes, labels_IO, #labels_attribute, W_attribute
-        
+        return (
+            classes,
+            labels_IO,
+        )  # labels_attribute, W_attribute
+
     def run_IO_Detector(self, img_file):
         # Load the transformer
         tf = self.returnTF()  # Image transformer
@@ -59,16 +63,18 @@ class GeoLocatorProcessor:
             img = img.convert("RGB")
         input_img = V(tf(img).unsqueeze(0))
         input_numpy = input_img.numpy()
-        # print(input_numpy.shape()) 
+        # print(input_numpy.shape())
         return input_numpy
-    
+
     def postProcessing(self, output_probs, image_path, top_k=5, io_threshold=0.5):
         # Sort category indices by descending probability
         sorted_indices = np.argsort(output_probs)[::-1]
 
         # Compute Indoor/Outdoor classification using top 10 categories
         classes, labels_IO = self.load_labels()
-        io_score = np.average(labels_IO[sorted_indices[:10]], weights=output_probs[sorted_indices[:10]])
+        io_score = np.average(
+            labels_IO[sorted_indices[:10]], weights=output_probs[sorted_indices[:10]]
+        )
         if io_score < io_threshold:
             environment_type = "Indoor"
         else:
@@ -77,40 +83,33 @@ class GeoLocatorProcessor:
         # Get top-k scene categories
         scene_categories = [
             {"Description": classes[idx], "Confidence": f"{output_probs[idx]:.3f}"}
-            for idx in sorted_indices[:top_k] if output_probs[idx] > 0.01
+            for idx in sorted_indices[:top_k]
+            if output_probs[idx] > 0.01
         ]
 
         # Construct and return result dictionary
         return {
             "Image": image_path,
             "Environment Type": environment_type,
-            "Scene Category": scene_categories
+            "Scene Category": scene_categories,
         }
-    
+
+
 class GeoLocatorModel:
-    def __init__ (self, model_path):
+    def __init__(self, model_path):
         self.glp = GeoLocatorProcessor()
         self.session = ort.InferenceSession(
             model_path,
-            providers = ["CUDAExecutionProvider", "CPUExecutionProvider"],
+            providers=["CUDAExecutionProvider", "CPUExecutionProvider"],
         )
-    
+
     def predict(self, image_path):
         input = self.glp.run_IO_Detector(image_path)
         output = self.session.run(None, {"input": input})
         probs = self._softmax(output[0][0])
         result = self.glp.postProcessing(probs, image_path)
         return result
-    
+
     def _softmax(self, x):
         e_x = np.exp(x - np.max(x))
         return e_x / e_x.sum()
-
-
-
-            
-        
-
-
-
-

@@ -6,7 +6,7 @@ from pathlib import Path
 import json
 from pprint import pprint
 
-# Arguments 
+# Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_image", type=str, required=True)
 parser.add_argument("--output_directory", type=str, required=True)

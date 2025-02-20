@@ -21,13 +21,16 @@ from helper import GeoLocatorModel
 # Suppress warnings
 warnings.filterwarnings("ignore")
 
+
 # Define typed dictionaries for inputs and parameters
 class ImageInputs(TypedDict):
     image_input: BatchFileInput
     output_path: FileInput
 
+
 class ImageParameters(TypedDict):
     pass
+
 
 # Initialize the ML server and model
 server = MLServer(__name__)
@@ -40,13 +43,12 @@ server.add_app_metadata(
 )
 model = GeoLocatorModel("GeoLocator.onnx")
 
+
 def initialize_task_schema() -> TaskSchema:
     """Initialize task schema with image input and output path"""
     inputs = [
         InputSchema(
-            key="image_input", 
-            label="Upload images", 
-            input_type=InputType.BATCHFILE
+            key="image_input", label="Upload images", input_type=InputType.BATCHFILE
         ),
         InputSchema(
             key="output_path",
@@ -54,25 +56,29 @@ def initialize_task_schema() -> TaskSchema:
             input_type=NewFileInputType(
                 default_name="output.json",
                 default_extension=".json",
-                allowed_extensions=[".json"]
+                allowed_extensions=[".json"],
             ),
         ),
     ]
     return TaskSchema(inputs=inputs, parameters=[])
+
 
 def clean_output_path(output_path: str):
     """Ensure the output path is clean before writing"""
     if os.path.exists(output_path):
         os.remove(output_path)
 
+
 def save_results(results: list, output_path: str):
     """Save processed results to a JSON file"""
     with open(output_path, "w") as file:
         json.dump(results, file, indent=4, ensure_ascii=False)
 
+
 def process_single_image(image_path: str) -> dict:
     """Process a single image and return the result"""
     return model.predict(image_path)
+
 
 @server.route(
     "/process_images", task_schema_func=initialize_task_schema, short_title="Result"
@@ -90,12 +96,8 @@ def process_images(inputs: ImageInputs, parameters: ImageParameters) -> Response
 
     print(f"Results saved at: {output_path}")
 
-    return ResponseBody(
-        root=FileResponse(
-            file_type=FileType.JSON,
-            path=output_path
-        )
-    )
+    return ResponseBody(root=FileResponse(file_type=FileType.JSON, path=output_path))
+
 
 # Start the server
 if __name__ == "__main__":
