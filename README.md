@@ -50,17 +50,17 @@ Converted Rescue Lab's GeoLocator-IO Classifier to ONNX Format, and ran it using
 
   * Open RescueBox and register the model:
 
-  ![Registering RescueBox Model](screenshots/Screen Shot 2025-02-19 at 7.44.20 PM.png)
+  ![Registering RescueBox Model](screenshots/1.png)
 
   * Provide a test image (3 are provided in the testImages directory of this project, or you could download your own from the Internet) and an output directory (where output will be saved):
 
-  ![Providing Inputs](screenshots/Screen Shot 2025-02-19 at 7.45.21 PM.png)
+  ![Providing Inputs](screenshots/2.png)
 
   * Run the model, see the green check mark indicating a successful run and view details:
 
-  ![Result Details](screenshots/Screen Shot 2025-02-19 at 7.45.29 PM.png)
+  ![Result Details](screenshots/3.png)
 
   * View the results of the classification! The beach, for example, is classified as 'outdoor':
 
-  ![Results Directory](screenshots/Screen Shot 2025-02-19 at 7.45.38 PM.png)
+  ![Results Directory](screenshots/4.png)
   
