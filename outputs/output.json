@@ -1,0 +1,1 @@
+{"Image": "/Users/mansak28/workspace/GeoLocator-ONNX/testImages/PEI_test1.jpg", "Environment Type": "Outdoor", "Scene Category": [{"Description": "cliff", "Confidence": "0.406"}, {"Description": "canyon", "Confidence": "0.156"}, {"Description": "rock_arch", "Confidence": "0.143"}, {"Description": "butte", "Confidence": "0.069"}, {"Description": "grotto", "Confidence": "0.026"}]}
